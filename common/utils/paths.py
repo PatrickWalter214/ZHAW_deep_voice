@@ -10,11 +10,35 @@ import common.path_helper as common_helper
 import networks.path_helper as networks_helper
 import configs.path_helper as configs_helper
 
+from shutil import copyfile
+
+DEFAULT_RUN_NAME = 'experiments/default'
+run_name = 'experiments/default'
+
+def create_run_folder_structure(config, path_run_name):
+    global run_name, DEFAULT_RUN_NAME
+    run_name = path_run_name
+    if run_name != DEFAULT_RUN_NAME:
+        base = get_data('experiments', run_name)
+        os.makedirs(base, exist_ok=True)
+        files = os.listdir(base)
+        run_ids = [int(v.replace('RUN_', '')) for v in files if '.txt' not in v and 'RUN_' in v]
+        run_ids.append(-1)
+        curr_id = max(run_ids) + 1
+        run_name = join(base, 'RUN_'+str(curr_id))
+        os.makedirs(run_name, exist_ok=True)
+        os.makedirs(get_experiment_nets(), exist_ok=True)
+        os.makedirs(get_experiment_logs(), exist_ok=True)
+        os.makedirs(get_experiment_plots(), exist_ok=True)
+        os.makedirs(get_results(), exist_ok=True)
+        os.makedirs(get_results_intermediate_test(), exist_ok=True)
+        os.makedirs(get_results_intermediate_analysis(), exist_ok=True)
+        copyfile(get_configs(config), get_experiments('config.cfg'))
+
 
 def join(base, *args):
     for arg in args:
         base = path.join(base, arg)
-
     return base
 
 def get_common(*args):
@@ -30,7 +54,8 @@ def get_data(*args):
     return join(get_common('data'), *args)
 
 def get_experiments(*args):
-    return join(get_data('experiments'), *args)
+    global run_name
+    return join(get_data(run_name), *args)
 
 def get_experiment_logs(*args):
     return join(get_experiments('logs'), *args)

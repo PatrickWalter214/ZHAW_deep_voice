@@ -141,11 +141,24 @@ if __name__ == '__main__':
                         help='If a single Network is specified and plot was called, just the best curves will be plotted. If test was called only the best network will be tested')
     parser.add_argument('-dev', dest='dev', action='store_true',
                         help='Enable dev mode so the dev set instead of the test set is used for testing')
+    parser.add_argument('-config', dest='config', default='config.cfg',
+                        help='The config file for the desired run')
+    parser.add_argument('-run', dest='run_name', default='',
+                        help='The name of the current run (will create a new folder structure)')
 
     args = parser.parse_args()
+    config = None
+    try:
+        config = load_config(None, join(get_configs(), args.config))
+    except Exception:
+        print(join(get_configs(), args.config)+' was not found')
+        sys.exit(1)
+
+    if args.run_name != '':
+        create_run_folder_structure(args.config, args.run_name)
 
     controller = Controller(
-        setup=args.setup, networks=tuple(args.networks), train=args.train, test=args.test, plot=args.plot,
+        setup=args.setup, config=config, networks=tuple(args.networks), train=args.train, test=args.test, plot=args.plot,
         best=args.best, dev=args.dev
     )
 
