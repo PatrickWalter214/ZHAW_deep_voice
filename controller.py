@@ -143,8 +143,6 @@ if __name__ == '__main__':
                         help='Enable dev mode so the dev set instead of the test set is used for testing')
     parser.add_argument('-config', dest='config', default='config.cfg',
                         help='The config file for the desired run')
-    parser.add_argument('-run', dest='run_name', default='',
-                        help='The name of the current run (will create a new folder structure)')
 
     args = parser.parse_args()
     config = None
@@ -154,8 +152,8 @@ if __name__ == '__main__':
         print(join(get_configs(), args.config)+' was not found')
         sys.exit(1)
 
-    if args.run_name != '':
-        create_run_folder_structure(args.config, args.run_name)
+    if config.get('train', 'run_name') != '':
+        create_run_folder_structure(args.config, config.get('train', 'run_name'))
 
     controller = Controller(
         setup=args.setup, config=config, networks=tuple(args.networks), train=args.train, test=args.test, plot=args.plot,
