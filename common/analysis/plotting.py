@@ -1,7 +1,8 @@
 from common.utils.paths import get_result_png
 from common.utils.pickler import load
 from common.utils.logger import *
-
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
