@@ -18,6 +18,7 @@ common/data/experiments/nets/*.pickle
 # Grid search files
 grid_search_results
 configs/grid_config.cfg
+configs/config.cfg
 #################### Python ####################
 # Byte-compiled / optimized / DLL files
 */__pycache__/
