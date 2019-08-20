@@ -13,7 +13,7 @@ import configs.path_helper as configs_helper
 from shutil import copyfile
 
 DEFAULT_RUN_NAME = 'experiments/default'
-run_name = 'experiments/default'
+run_name = DEFAULT_RUN_NAME
 
 def create_run_folder_structure(config, path_run_name):
     global run_name, DEFAULT_RUN_NAME

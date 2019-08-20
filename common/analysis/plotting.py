@@ -1,4 +1,4 @@
-from common.utils.paths import get_result_png
+from common.utils.paths import *
 from common.utils.pickler import load
 from common.utils.logger import *
 import matplotlib
@@ -71,6 +71,21 @@ def _plot_curves(plot_file_name, curve_names, metric_sets, number_of_embeddings)
                 best_results[m].append(np.max(results))
             else:
                 best_results[m].append(np.min(results))
+    t = ''
+    for i, name in enumerate(curve_names):
+        n = name.split('_')[-1].split('.')[0]
+        end = 'best '+n
+        try:
+            int(n)
+            end = 'epoch '+n
+        except Exception:
+            pass
+        t += '%s,'%end
+        for j in range(4):
+            t += '%16.14f,'%best_results[j][i]
+        t += '\n'
+    with open(get_data('result.csv'), 'w+') as f:
+        f.write(t)
 
     # How many lines to plot
     number_of_lines = len(curve_names)

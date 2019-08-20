@@ -82,12 +82,15 @@ class bilstm_2layer_dropout(object):
 
     def create_callbacks(self):
         csv_logger = keras.callbacks.CSVLogger(get_experiment_logs(self.network_name + '.csv'))
-        net_saver = keras.callbacks.ModelCheckpoint(
-            get_experiment_nets(self.network_name + "_best.h5"),
+        acc_net_saver = keras.callbacks.ModelCheckpoint(
+            get_experiment_nets(self.network_name + "_best_train.h5"),
+            monitor='loss', verbose=1, save_best_only=True)
+        val_net_saver = keras.callbacks.ModelCheckpoint(
+            get_experiment_nets(self.network_name + "_best_val.h5"),
             monitor='val_loss', verbose=1, save_best_only=True)
         net_checkpoint = keras.callbacks.ModelCheckpoint(
             get_experiment_nets(self.network_name + "_{epoch:05d}.h5"), period=self.n_10_batches / 10)
-        return [csv_logger, net_saver, net_checkpoint]
+        return [csv_logger, acc_net_saver, val_net_saver, net_checkpoint]
 
     def run_network(self):
         model = self.create_net()
@@ -107,4 +110,4 @@ class bilstm_2layer_dropout(object):
         ps.save_accuracy_plot(history, self.network_name)
         ps.save_loss_plot(history, self.network_name)
         print("saving model")
-        model.save(get_experiment_nets(self.network_name + ".h5"))
+        #model.save(get_experiment_nets(self.network_name + ".h5")) makes no sense => equal to last checkpoint
