@@ -129,8 +129,11 @@ class bilstm_2layer_dropout(object):
         csv_logger = keras.callbacks.CSVLogger(
             get_experiment_logs(self.network_name + '.csv'))
         info_logger = ActiveLearningEpochLogger(self.logger, self.epochs)
-        net_saver = keras.callbacks.ModelCheckpoint(
-            get_experiment_nets(self.network_name + "_best.h5"),
+        train_net_saver = keras.callbacks.ModelCheckpoint(
+            get_experiment_nets(self.network_name + "_best_train.h5"),
+            monitor='loss', verbose=1, save_best_only=True)
+        val_net_saver = keras.callbacks.ModelCheckpoint(
+            get_experiment_nets(self.network_name + "_best_val.h5"),
             monitor='val_loss', verbose=1, save_best_only=True)
         net_checkpoint = ActiveLearningModelCheckpoint(
             get_experiment_nets(self.network_name + "_{epoch:05d}.h5"),
@@ -138,7 +141,7 @@ class bilstm_2layer_dropout(object):
         )
         plot_callback_instance = PlotCallback(self.network_name)
 
-        return [csv_logger, info_logger, net_saver, net_checkpoint, plot_callback_instance]
+        return [csv_logger, info_logger, train_net_saver, val_net_saver, net_checkpoint, plot_callback_instance]
 
     def fit(self, model, callbacks, X_t, X_v, y_t, y_v, epochs_to_run):
         train_gen = dg.batch_generator_lstm(X_t, y_t, 100, segment_size=self.segment_size)
@@ -214,9 +217,9 @@ class bilstm_2layer_dropout(object):
             X_v_shapes.append(X_v.shape[0])
 
             ps.save_alr_shape_x_plot(self.network_name, [ X_t_shapes, X_v_shapes ])
-
-        self.logger.info("saving model")
-        model.save(get_experiment_nets(self.network_name + ".h5"))
+        # useless, is same as final epoch
+        #self.logger.info("saving model")
+        #model.save(get_experiment_nets(self.network_name + ".h5"))
 
     def active_learning_round(self, model, known_pool_data: dict, round: int, X_t, X_v, y_t, y_v):
         X_pool, y_pool, pool_ident = self.reader_speaker_data_round(round)
