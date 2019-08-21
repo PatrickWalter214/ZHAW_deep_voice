@@ -102,7 +102,7 @@ class LSTMVOX2Controller(NetworkController):
         if self.best:
             file_regex = self.get_network_name() + "*_best.h5"
         else:
-            file_regex = self.get_network_name() + "*.h5"
+            file_regex = "*.h5"
 
         checkpoints = list_all_files(get_experiment_nets(), file_regex)
 
