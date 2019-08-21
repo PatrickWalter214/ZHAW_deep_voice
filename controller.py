@@ -153,7 +153,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if config.get('train', 'run_name') != '':
-        create_run_folder_structure(args.config, config.get('train', 'run_name'))
+        create_run_folder_structure(args.config, config.get('train', 'rerun'), config.get('train', 'run_name'))
 
     controller = Controller(
         setup=args.setup, config=config, networks=tuple(args.networks), train=args.train, test=args.test, plot=args.plot,

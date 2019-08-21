@@ -15,7 +15,7 @@ from shutil import copyfile
 DEFAULT_RUN_NAME = 'experiments/default'
 run_name = DEFAULT_RUN_NAME
 
-def create_run_folder_structure(config, path_run_name):
+def create_run_folder_structure(config, rerun, path_run_name):
     global run_name, DEFAULT_RUN_NAME
     run_name = path_run_name
     if run_name != DEFAULT_RUN_NAME:
@@ -25,8 +25,10 @@ def create_run_folder_structure(config, path_run_name):
         run_ids = [int(v.replace('RUN_', '')) for v in files if '.txt' not in v and 'RUN_' in v]
         run_ids.append(-1)
         curr_id = max(run_ids)
-        if config.get('train','rerun') != 'True':
+        if rerun != 'True':
             curr_id += 1
+        if curr_id < 0:
+            curr_id = 0
         run_name = join(base, 'RUN_'+str(curr_id))
         os.makedirs(run_name, exist_ok=True)
         os.makedirs(get_experiment_nets(), exist_ok=True)
