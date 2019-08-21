@@ -7,7 +7,7 @@ network = ['pairwise_lstm']
 train_set = [('timit_speakers_100_50w_50m_not_reynolds_cluster', 100)]
 test_set = [('timit_speakers_40_clustering_vs_reynolds', 40)]
 
-margin_arcface = [0.4, 0.3, 0.2, 0.1, 0.01, 0.001, 0.0001, 0.00001]
+margin_arcface = []
 margin_cosface = [0.4, 0.3, 0.2, 0.1, 0.01, 0.001, 0.0001, 0.00001]
 margin_sphereface = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7]
 
@@ -89,13 +89,12 @@ for n in network:
     for train in train_set:
         for test in test_set:
             for s in scale:
-                m = [0, 0, 1]
                 for ma in margin_arcface:
-                    m[0] = ma
+                    m = [ma, 0, 1]
                     run_net(n, train, test, m, s)
                 for mc in margin_cosface:
-                    m[1] = mc
+                    m = [0, mc, 1]
                     run_net(n, train, test, m, s)
                 for ms in margin_sphereface:
-                    m[2] = ms
+                    m = [0, 0, ms]
                     run_net(n, train, test, m, s)

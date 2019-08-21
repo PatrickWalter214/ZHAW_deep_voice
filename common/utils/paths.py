@@ -145,8 +145,7 @@ def list_all_files(directory, file_regex):
     """
     files = []
     for file in os.listdir(directory):
-        if re.match(file_regex, file):
-            files.append(file)
+        files.append(file)
     return sorted(files)
 
 
