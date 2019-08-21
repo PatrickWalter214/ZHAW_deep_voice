@@ -121,7 +121,7 @@ class LSTMVOX2Controller(NetworkController):
             checkpoint_result_pickle = get_results_intermediate_test(checkpoint)
 
             # Add out_layer to checkpoint name
-            checkpoint_result_pickle = checkpoint_result_pickle.split('.')[0] + '__ol' + str(self.out_layer) + '.' + checkpoint_result_pickle.split('.')[1]
+            checkpoint_result_pickle = '.'.join(checkpoint_result_pickle.split('.')[:-1]) + '__ol' + str(self.out_layer) + '.' + checkpoint_result_pickle.split('.')[-1]
 
             if os.path.isfile(checkpoint_result_pickle):
                 embeddings, speakers, num_embeddings = pickler.load(checkpoint_result_pickle)
@@ -157,7 +157,7 @@ class LSTMVOX2Controller(NetworkController):
             set_of_total_times.append(time)
 
         # Add out_layer to checkpoint names
-        checkpoints = list(map(lambda x: x.split('.')[0] + '__ol' + str(self.out_layer) + '.' + x.split('.')[1], checkpoints))
+        checkpoints = list(map(lambda x: '.'.join(x.split('.')[:-1]) + '__ol' + str(self.out_layer) + '.' + x.split('.')[-1], checkpoints))
         print("checkpoints: {}".format(checkpoints))
 
         logger.info('Pairwise_lstm test done.')
