@@ -65,6 +65,7 @@ def build_config(dataset, net, train, test, margins, scale, rerun):
 
     config['train']['pickle'] = train[0]
     config['train']['n_speakers'] = str(train[1])
+    config['train']['rerun'] = 'False'
     if rerun:
         config['train']['rerun'] = 'True'
     config['test']['test_pickle'] = test[0]
@@ -84,10 +85,10 @@ def run_net(net, train, test, margins, scale):
     if net == 'pairwise_lstm_vox2':
         dataset = 'vox2'
     build_config(dataset, net, train, test, margins, scale, rerun)
-    suffix = '-train -test'
+    suffix = ' -train -test'
     if rerun:
         suffix = ''
-    command = 'python controller.py -n '+net+' -plot -config '+suffix+' grid_config.cfg'
+    command = 'python controller.py -n '+net+suffix+' -plot -config grid_config.cfg'
     os.system(command)
     update_results(dataset, net, train, test, margins, scale)
     os.remove('common/data/result.csv')
