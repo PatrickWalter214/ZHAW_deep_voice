@@ -123,9 +123,9 @@ def get_result_files(filename, best):
     :return: All absolute paths to a file that matches the criteria.
     """
     if best:
-        regex = '^{}.*best.pickle'.format(filename)
+        regex = '.*best.pickle'
     else:
-        regex = '^{}.*(?<!best)\.pickle'.format(filename)
+        regex = '.*(?<!best)\.pickle'
 
     files = list_all_files(get_results(), regex)
     for index, file in enumerate(files):

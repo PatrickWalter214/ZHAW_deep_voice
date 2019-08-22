@@ -108,7 +108,7 @@ def _plot_curves(plot_file_name, curve_names, metric_sets, number_of_embeddings)
     plt.rcParams.update({'font.size': 12})
 
     # Define number of figures
-    fig1 = plt.figure(figsize=(18, 12))
+    fig1 = plt.figure(figsize=(30, 16))
 
     # Define Plots
     plot_grid = (3, 2)
@@ -146,7 +146,7 @@ def _plot_curves(plot_file_name, curve_names, metric_sets, number_of_embeddings)
         line.set_label(label)
 
     # Add legend and save the plot
-    fig1.legend(loc='upper center', bbox_to_anchor=(0.5, 0.33), ncol=4)
+    fig1.legend(loc='upper center', bbox_to_anchor=(0.5, 0.33), ncol=3)
     fig1.savefig(get_result_png(plot_file_name + '.png'), format='png')
     fig1.savefig(get_result_png(plot_file_name + '.svg'), format='svg')
     return fig1
