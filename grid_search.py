@@ -83,7 +83,7 @@ def run_net(net, train, test, margins, scale):
     dataset = 'timit'
     if net == 'pairwise_lstm_vox2':
         dataset = 'vox2'
-    build_config(dataset, net, train, test, margins, scale)
+    build_config(dataset, net, train, test, margins, scale, rerun)
     suffix = '-train -test'
     if rerun:
         suffix = ''
