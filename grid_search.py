@@ -13,6 +13,7 @@ margin_sphereface = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7]
 
 scale = [30]
 
+rerun = True
 
 
 best_rules = [0,1,1,0]
@@ -58,12 +59,14 @@ def update_results(dataset, net, train, test, margins, scale):
         with open(base_path+file[0], 'a') as f:
             f.write(text)
 
-def build_config(dataset, net, train, test, margins, scale):
+def build_config(dataset, net, train, test, margins, scale, rerun):
     config = configparser.ConfigParser()
     config.read_file(open('configs/config.cfg'))
 
     config['train']['pickle'] = train[0]
     config['train']['n_speakers'] = str(train[1])
+    if rerun:
+        config['train']['rerun'] = 'True'
     config['test']['test_pickle'] = test[0]
     config['angular_loss']['margin_arcface'] = '%7.5f'%margins[0]
     config['angular_loss']['margin_cosface'] = '%7.5f'%margins[1]
@@ -76,11 +79,15 @@ def build_config(dataset, net, train, test, margins, scale):
         config.write(f)
 
 def run_net(net, train, test, margins, scale):
+    global rerun
     dataset = 'timit'
     if net == 'pairwise_lstm_vox2':
         dataset = 'vox2'
     build_config(dataset, net, train, test, margins, scale)
-    command = 'python controller.py -n '+net+' -train -test -plot -config grid_config.cfg'
+    suffix = '-train -test'
+    if rerun:
+        suffix = ''
+    command = 'python controller.py -n '+net+' -plot -config '+suffix+' grid_config.cfg'
     os.system(command)
     update_results(dataset, net, train, test, margins, scale)
     os.remove('common/data/result.csv')
