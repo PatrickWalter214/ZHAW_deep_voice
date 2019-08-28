@@ -19,10 +19,15 @@ optional arguments:
   -plot              Plots the last results of the specified networks in one file.
   -dev               Enable dev mode so the dev set instead of the test set is used for testing
 """
-
+import logging
+logging.getLogger('tensorflow').disabled = True
+logging.getLogger('keras').disabled = True
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import warnings
+warnings.filterwarnings("ignore")
 
 import argparse
-import sys
 
 from common.analysis.plotting import plot_files
 from common.extrapolation.setup import setup_suite, is_suite_setup
@@ -154,10 +159,13 @@ if __name__ == '__main__':
 
     if config.get('train', 'run_name') != '':
         create_run_folder_structure(args.config, config.get('train', 'rerun'), config.get('train', 'run_name'))
-
+    print('current run: '+config.get('train', 'run_name'))
+    print()
     controller = Controller(
         setup=args.setup, config=config, networks=tuple(args.networks), train=args.train, test=args.test, plot=args.plot,
         best=args.best, dev=args.dev
     )
 
     controller.run()
+    print()
+    print()

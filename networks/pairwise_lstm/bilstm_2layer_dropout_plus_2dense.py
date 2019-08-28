@@ -58,9 +58,15 @@ class bilstm_2layer_dropout(object):
         model.add(Bidirectional(LSTM(self.n_hidden1, return_sequences=True), input_shape=self.input))
         model.add(Dropout(0.50))
         model.add(Bidirectional(LSTM(self.n_hidden2)))
+
+        """
         model.add(Dense(self.n_speakers * 10))
         model.add(Dropout(0.25))
         model.add(Dense(self.n_speakers * 5))
+        """
+        model.add(Dense(64))
+        model.add(Dropout(0.25))
+        model.add(Dense(3))
         add_final_layers(model, self.config)
 
         loss_function = get_loss(self.config)
@@ -84,10 +90,10 @@ class bilstm_2layer_dropout(object):
         csv_logger = keras.callbacks.CSVLogger(get_experiment_logs(self.network_name + '.csv'))
         acc_net_saver = keras.callbacks.ModelCheckpoint(
             get_experiment_nets(self.network_name + "_best_train.h5"),
-            monitor='loss', verbose=1, save_best_only=True)
+            monitor='loss', verbose=0, save_best_only=True)
         val_net_saver = keras.callbacks.ModelCheckpoint(
             get_experiment_nets(self.network_name + "_best_val.h5"),
-            monitor='val_loss', verbose=1, save_best_only=True)
+            monitor='val_loss', verbose=0, save_best_only=True)
         net_checkpoint = keras.callbacks.ModelCheckpoint(
             get_experiment_nets(self.network_name + "_{epoch:05d}.h5"), period=self.n_10_batches / 10)
         return [csv_logger, acc_net_saver, val_net_saver, net_checkpoint]
@@ -103,11 +109,11 @@ class bilstm_2layer_dropout(object):
         # batches_v = ((X_v.shape[0] + 128 - 1) // 128)
 
         history = model.fit_generator(train_gen, steps_per_epoch=10, epochs=self.n_10_batches,
-                                      verbose=2, callbacks=calls, validation_data=val_gen,
+                                      verbose=1, callbacks=calls, validation_data=val_gen,
                                       validation_steps=2, class_weight=None, max_q_size=10,
                                       nb_worker=1, pickle_safe=False)
 
         ps.save_accuracy_plot(history, self.network_name)
         ps.save_loss_plot(history, self.network_name)
-        print("saving model")
+        print("saving model\n")
         #model.save(get_experiment_nets(self.network_name + ".h5")) makes no sense => equal to last checkpoint

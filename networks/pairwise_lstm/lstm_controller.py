@@ -3,8 +3,16 @@ The controller to train and test the pairwise_lstm network
 """
 
 import numpy as np
+import sys
 from keras.models import Model
 from keras.models import load_model
+
+import pickle
+
+import matplotlib
+#matplotlib.use('agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from common.clustering.generate_embeddings import generate_embeddings
 from common.network_controller import NetworkController
@@ -80,6 +88,7 @@ class LSTMController(NetworkController):
 
         # Fill return values
         for checkpoint in checkpoints:
+            print('Generate embeddings for checkpoint: ' + checkpoint)
             logger.info('Running checkpoint: ' + checkpoint)
             # Load and compile the trained network
             network_file = get_experiment_nets(checkpoint)
@@ -87,7 +96,8 @@ class LSTMController(NetworkController):
             model_full.compile(loss=loss, optimizer=optimizer, metrics=metrics)
 
             # Get a Model with the embedding layer as output and predict
-            model_partial = Model(inputs=model_full.input, outputs=model_full.layers[out_layer].output)
+            #model_partial = Model(inputs=model_full.input, outputs=model_full.layers[out_layer].output)
+            model_partial = Model(inputs=model_full.input, outputs=model_full.layers[5].output)
 
             x_cluster_list = []
             y_cluster_list = []
@@ -95,9 +105,22 @@ class LSTMController(NetworkController):
                 x_cluster = np.asarray(model_partial.predict(x))
                 x_cluster_list.append(x_cluster)
                 y_cluster_list.append(y)
+            """
+            features = np.concatenate((x_cluster_list[0], x_cluster_list[1]))
+            features /= np.linalg.norm(features, axis=1, keepdims=True)
+            y_test = np.concatenate((y_cluster_list[0], y_cluster_list[1]))
+            pickle.dump((features, y_test), open(get_result_png(checkpoint+'.pickle'), 'wb'))
+            fig1 = plt.figure()
+            ax1 = Axes3D(fig1)
+            """
+            for c in range(len(np.unique(y_test))):
+                ax1.plot(features[y_test==c, 0], features[y_test==c, 1], features[y_test==c, 2], '.', alpha=0.1)
+            plt.title('ArcFace')
+            plt.show()
+            fig1.savefig(get_result_png('fig_state_'+checkpoint + '.png'), format='png')
+            fig1.savefig(get_result_png('fig_state_'+checkpoint + '.svg'), format='svg')
 
             embeddings, speakers, num_embeddings = generate_embeddings(x_cluster_list, y_cluster_list, vector_size)
-
             # Fill the embeddings and speakers into the arrays
             set_of_embeddings.append(embeddings)
             set_of_speakers.append(speakers)
@@ -107,6 +130,7 @@ class LSTMController(NetworkController):
             time = TimeCalculator.calc_time_all_utterances(y_cluster_list, seg_size)
             set_of_total_times.append(time)
 
+        print()
         logger.info('Pairwise_lstm test done.')
         return checkpoints, set_of_embeddings, set_of_speakers, speaker_numbers, set_of_total_times
 

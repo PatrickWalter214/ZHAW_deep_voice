@@ -2,6 +2,7 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import cdist
 import common.dominant_sets.dominantset as ds
 import numpy as np
+import time
 
 from common.utils.logger import *
 
@@ -20,8 +21,9 @@ def cluster_embeddings(set_of_embeddings, set_of_true_clusters, dominant_sets=Fa
     logger.info('Cluster embeddings')
 
     set_predicted_clusters = []
-
+    i = 0
     for embeddings, true_clusters in zip(set_of_embeddings, set_of_true_clusters):
+        start = time.time()
         if dominant_sets:
             predicted_clusters = []
             dos = ds.DominantSetClustering(feature_vectors=np.array(embeddings),
@@ -32,9 +34,8 @@ def cluster_embeddings(set_of_embeddings, set_of_true_clusters, dominant_sets=Fa
             predicted_clusters.append(dos.ds_result)
         else:
             predicted_clusters = original_clustering(embeddings, metric, method)
-
         set_predicted_clusters.append(predicted_clusters)
-
+        i += 1
     return set_predicted_clusters
 
 
@@ -50,7 +51,3 @@ def original_clustering(embeddings, metric, method):
         predicted_clusters.append(predicted_cluster)
 
     return predicted_clusters
-
-
-
-

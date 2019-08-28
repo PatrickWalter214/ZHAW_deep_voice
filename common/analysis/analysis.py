@@ -1,10 +1,13 @@
 from common.analysis.metrics.acp import average_cluster_purity
 from common.analysis.metrics.ari import adjusted_rand_index
 from common.analysis.metrics.der import diarization_error_rate
-
-import numpy as np
-
 from common.analysis.metrics.mr import misclassification_rate
+
+import time
+import warnings
+import numpy as np
+import sys
+
 from common.utils.logger import *
 from common.utils.paths import *
 from common.utils.pickler import load, save
@@ -33,6 +36,7 @@ def analyse_results(network_name, checkpoint_names, set_of_predicted_clusters,
     for index, predicted_clusters in enumerate(set_of_predicted_clusters):
         checkpoint = checkpoint_names[index]
         logger.info('Analysing checkpoint:' + checkpoint)
+        print('Analysing checkpoint:' + checkpoint)
 
         # Check if checkpoint is already stored
         analysis_pickle = get_results_intermediate_analysis(checkpoint)
@@ -50,7 +54,7 @@ def analyse_results(network_name, checkpoint_names, set_of_predicted_clusters,
     _save_best_results(network_name, checkpoint_names, metric_sets, embedding_numbers)
 
     logger.info('Clearing intermediate result checkpoints')
-    
+
     for checkpoint in checkpoint_names:
         analysis_pickle = get_results_intermediate_analysis(checkpoint)
         test_pickle = get_results_intermediate_test(checkpoint)
@@ -86,7 +90,17 @@ def _calculate_analysis_values(predicted_clusters, true_cluster, times):
             metric_results[m] = np.zeros((len(true_cluster)))
 
     # Loop over all possible clustering
+    warnings.filterwarnings("ignore")
+    t = '.'.join(['']*100)
+    sys.stdout.write('['+t+']')
+    sys.stdout.write('\033[100D')
+    sys.stdout.flush()
+    last = 0
     for i, predicted_cluster in enumerate(predicted_clusters):
+        if int(100*i/len(predicted_clusters)) > last:
+            sys.stdout.write('#')
+            sys.stdout.flush()
+            last = int(100*i/len(predicted_clusters))
         logger.info('Calculated Scores for {}/{} predicted clusters'.format(i, len(predicted_clusters)))
         # Calculate different analysis's
         metric_results[0][i] = misclassification_rate(true_cluster, predicted_cluster)
@@ -94,6 +108,8 @@ def _calculate_analysis_values(predicted_clusters, true_cluster, times):
         metric_results[2][i] = adjusted_rand_index(true_cluster, predicted_cluster)
         metric_results[3][i] = diarization_error_rate(true_cluster, predicted_cluster, times)
 
+    sys.stdout.write('\n')
+    sys.stdout.flush()
     return metric_results
 
 
@@ -102,6 +118,7 @@ def _save_best_results(network_name, checkpoint_names, metric_sets, speaker_numb
         _write_result_pickle(network_name + "_best", checkpoint_names, metric_sets, speaker_numbers)
     else:
         # Find best result (according to the first metric in metrics)
+
         if metric_worst_values[0] == 1:
             best_results = []
             for results in metric_sets[0]:

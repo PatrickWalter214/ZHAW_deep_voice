@@ -2,7 +2,7 @@ from common.utils.paths import *
 from common.utils.pickler import load
 from common.utils.logger import *
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -78,9 +78,9 @@ def _plot_curves(plot_file_name, curve_names, metric_sets, number_of_embeddings)
     for m, min_value in enumerate(metric_worst_values):
         for results in metric_sets[m]:
             if(metric_worst_values[m] == 0):
-                best_results[m].append(np.max(results))
+                best_results[m].append(results[int(results.shape[0]/2-0.25)])
             else:
-                best_results[m].append(np.min(results))
+                best_results[m].append(results[int(results.shape[0]/2-0.25)])
     t = ''
     for i, name in enumerate(curve_names):
         n = name.split('_')[-1].split('.')[0]
@@ -133,8 +133,7 @@ def _plot_curves(plot_file_name, curve_names, metric_sets, number_of_embeddings)
     for index in range(number_of_lines):
         label = curve_names[index]
         for m, metric_name in enumerate(metric_names):
-            label = label + '\n {} {}: {}'.format('Max' if metric_worst_values[m]==0 else 'Min', metric_name,
-                                                  str(best_results[m][index]))
+            label = label + '\n{} at {} speakers: {}'.format(metric_name, str(int(results.shape[0]/2)), str(best_results[m][index]))
         color = colors[index]
 
         number_of_clusters = np.arange(maximum_clusters_to_display, 0, -1)
