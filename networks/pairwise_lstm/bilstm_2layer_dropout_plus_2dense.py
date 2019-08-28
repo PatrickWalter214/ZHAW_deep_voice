@@ -59,7 +59,6 @@ class bilstm_2layer_dropout(object):
         model.add(Dropout(0.50))
         model.add(Bidirectional(LSTM(self.n_hidden2)))
 
-        """
         model.add(Dense(self.n_speakers * 10))
         model.add(Dropout(0.25))
         model.add(Dense(self.n_speakers * 5))
@@ -67,6 +66,8 @@ class bilstm_2layer_dropout(object):
         model.add(Dense(64))
         model.add(Dropout(0.25))
         model.add(Dense(3))
+        """
+        
         add_final_layers(model, self.config)
 
         loss_function = get_loss(self.config)

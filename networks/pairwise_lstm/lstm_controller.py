@@ -49,13 +49,11 @@ class LSTMController(NetworkController):
         short_utterance = self.config.getboolean('test', 'short_utterances')
         out_layer = self.config.getint('pairwise_lstm', 'out_layer')
         seg_size = self.config.getint('pairwise_lstm', 'seg_size')
-        vec_size = self.config.getint('pairwise_lstm', 'vec_size')
 
         logger = get_logger('lstm', logging.INFO)
         logger.info('Run pairwise_lstm test')
         logger.info('out_layer -> ' + str(out_layer))
         logger.info('seg_size -> ' + str(seg_size))
-        logger.info('vec_size -> ' + str(vec_size))
 
         # Load and prepare train/test data
         x_train, speakers_train, s_list_train = load_test_data(self.get_validation_train_data())
@@ -84,7 +82,6 @@ class LSTMController(NetworkController):
         loss = get_loss(self.config)
         custom_objects = get_custom_objects(self.config)
         optimizer = 'rmsprop'
-        vector_size = vec_size
 
         # Fill return values
         for checkpoint in checkpoints:
@@ -97,7 +94,7 @@ class LSTMController(NetworkController):
 
             # Get a Model with the embedding layer as output and predict
             #model_partial = Model(inputs=model_full.input, outputs=model_full.layers[out_layer].output)
-            model_partial = Model(inputs=model_full.input, outputs=model_full.layers[5].output)
+            model_partial = Model(inputs=model_full.input, outputs=model_full.layers[out_layer].output)
 
             x_cluster_list = []
             y_cluster_list = []
@@ -105,6 +102,7 @@ class LSTMController(NetworkController):
                 x_cluster = np.asarray(model_partial.predict(x))
                 x_cluster_list.append(x_cluster)
                 y_cluster_list.append(y)
+
             """
             features = np.concatenate((x_cluster_list[0], x_cluster_list[1]))
             features /= np.linalg.norm(features, axis=1, keepdims=True)
@@ -112,15 +110,15 @@ class LSTMController(NetworkController):
             pickle.dump((features, y_test), open(get_result_png(checkpoint+'.pickle'), 'wb'))
             fig1 = plt.figure()
             ax1 = Axes3D(fig1)
-            """
             for c in range(len(np.unique(y_test))):
                 ax1.plot(features[y_test==c, 0], features[y_test==c, 1], features[y_test==c, 2], '.', alpha=0.1)
             plt.title('ArcFace')
             plt.show()
             fig1.savefig(get_result_png('fig_state_'+checkpoint + '.png'), format='png')
             fig1.savefig(get_result_png('fig_state_'+checkpoint + '.svg'), format='svg')
+            """
 
-            embeddings, speakers, num_embeddings = generate_embeddings(x_cluster_list, y_cluster_list, vector_size)
+            embeddings, speakers, num_embeddings = generate_embeddings(x_cluster_list, y_cluster_list, x_cluster_list[0].shape[1])
             # Fill the embeddings and speakers into the arrays
             set_of_embeddings.append(embeddings)
             set_of_speakers.append(speakers)
