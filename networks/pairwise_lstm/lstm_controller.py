@@ -10,7 +10,7 @@ from keras.models import load_model
 import pickle
 
 import matplotlib
-#matplotlib.use('agg')
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
